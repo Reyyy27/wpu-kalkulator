@@ -39,22 +39,18 @@
         input {
             margin: 5px;
         }
-
-        .btn-group button {
-            margin: 5px;
-        }
-
-        .btn {
-            margin: 5px;
-        }
-
         select {
             margin: 5px;
         }
 
-        
+        .btn-group button {
+            margin: 5px;
+        }
+        .btn {
+            margin: 5px;
+        }
+
         .edit-mode {
-            
             background-color: #e7f0ff; /* Warna latar belakang biru muda */
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.2); /* Bayangan biru */
         }
@@ -65,7 +61,6 @@
         .edit-mode .btn:hover {
             background-color: #0056b3; /* Tombol biru gelap saat hover */
         }
-
     </style>
 </head>
 <body>
@@ -89,7 +84,7 @@
                 <input type="text" id="angka_2" class="form-control mb-2" placeholder="Sisi 2" required>
 
                 <div class="mt-3">
-                    <button type="submit" class="btn btn-success">Hitung Luas</button>
+                    <button type="submit" class="btn btn-success" id="submitButton">Hitung Luas</button>
                     <button type="button" id="clearButton" class="btn btn-danger">Clear</button>
                 </div>
             </form>
@@ -102,6 +97,61 @@
 
     <div class="mt-4">
         <h4>Data Hasil Perhitungan</h4>
+        <!-- filter -->
+        <form action="/bangun-datar" method="get">
+            @csrf
+            <div class="row mb-3">
+                <div class="col-sm-2">
+                    <label for="" class="form-label">Nama Bangun</label>
+                    <select name="nama_bangun" class="form-select">
+                        <option value="">-</option>
+                        <option value="Persegi">Persegi</option>
+                        <option value="Persegi Panjang">Persegi Panjang</option>
+                        <option value="Segitiga">Segitiga</option>
+                        <option value="Jajar Genjang">Jajar Genjang</option>
+                        <option value="Belah Ketupat">Belah Ketupat</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="form-label">Angka 1</label>
+                    <div class="input-group">
+                        <select name="operator1" class="form-select">
+                            <option value="=">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value="!=">&ne;</option>
+                        </select>
+                        <input name="angka1" type="number" class="form-control" placeholder="Angka 1" value="{{ isset($_GET['angka1']) ? $_GET['angka1'] : '' }}">
+                    </div>
+                </div>
+                
+                <div class="col-sm-3">
+                    <label for="" class="form-label">Angka 2</label>
+                    <div class="input-group">
+                        <select name="operator2" class="form-select">
+                            <option value="=">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value="!=">&ne;</option>
+                        </select>
+                        <input name="angka2" type="number" class="form-control" placeholder="Angka 2" value="{{ isset($_GET['angka2']) ? $_GET['angka2'] : '' }}">
+                    </div>
+                </div>
+                
+                <div class="col-sm-2">
+                    <label for="" class="form-label">Hasil</label>
+                    <select name="hasil" class="form-select">
+                        <option value="">-</option>
+                        <option value="terbesar">Terbesar</option>
+                        <option value="terkecil">Terkecil</option>
+                    </select>
+                </div>
+                <div class="col-sm-2" style="padding-top: 12px">
+                    <button type="submit" class="btn btn-primary mt-4">Search</button>
+                </div>
+            </div>
+        </form>
+
         <table class="table table-bordered" id="hasilTable">
             <thead>
                 <tr>
@@ -113,49 +163,37 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Baris tabel akan diisi oleh jQuery -->
+                <!-- Data akan ditambahkan di sini melalui JavaScript -->
+                @foreach ($bangunDatar as $item)
+                    <tr data-id="{{ $item->id }}">
+                        <td>{{ $item->nama_bangun }}</td>
+                        <td>{{ $item->angka_1 }}</td>
+                        <td>{{ $item->angka_2 }}</td>
+                        <td>{{ $item->hasil }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm edit-button" data-id="{{ $item->id }}">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-button" data-id="{{ $item->id }}">Hapus</button>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
+</div>
 
-    <!-- Modal Edit -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Data</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editForm">
-                        <input type="hidden" id="edit_id">
-                        <div class="mb-3">
-                            <label for="edit_nama_bangun" class="form-label">Nama Bangun Datar</label>
-                            <input type="text" class="form-control" id="edit_nama_bangun" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_angka_1" class="form-label">Angka 1</label>
-                            <input type="text" class="form-control" id="edit_angka_1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_angka_2" class="form-label">Angka 2</label>
-                            <input type="text" class="form-control" id="edit_angka_2" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-wgWcX4eF2Xnh4AfuWFOlUrpQ4EVV0aAYX0an9A9SvFpo67bV9S9L2XhD5E6OyxYp" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9oKpe3TCwFpe17P4B+8k1FJ7x44brvI7eqoA1MT4gxpmfjf6WLM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-pfNXPgFjw8Y+e0BdB7gxnNT7L0v2i4Y2l7O8XEB6WfATwQ96h2xaR1Z8IKc+q9w6L" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
+<script>
+$(document).ready(function() {
     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
+    // Mode saat ini: 'input' atau 'edit'
+    let currentMode = 'input';
+    let currentId = null;
+
+    // Event listener untuk submit form kalkulator
     $('#kalkulatorForm').on('submit', function(e) {
         e.preventDefault();
 
@@ -164,6 +202,7 @@
         const angka2 = parseFloat($('#angka_2').val());
         let hasil;
 
+        // Logika perhitungan berdasarkan bangun datar yang dipilih
         switch (namaBangun) {
             case 'Persegi':
                 hasil = angka1 * angka1;
@@ -184,186 +223,130 @@
 
         $('#result').text(hasil);
 
-        // Tambah data ke tabel
-        $('#hasilTable tbody').append(`
-            <tr data-id="">
-                <td>${namaBangun}</td>
-                <td>${angka1}</td>
-                <td>${angka2}</td>
-                <td>${hasil}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm edit-button" data-id="">Edit</button>
-                    <button class="btn btn-danger btn-sm delete-button" data-id="">Hapus</button>
-                </td>
-            </tr>
-        `);
-
-        // Kirim data ke server
-        $.ajax({
-            url: '/simpan-bangun-datar',
-            type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
-            contentType: 'application/json',
-            data: JSON.stringify({
-                nama_bangun: namaBangun,
-                angka_1: angka1,
-                angka_2: angka2,
-                hasil: hasil
-            }),
-            success: function(response) {
-                alert('Data berhasil disimpan.');
-                // Update data-id pada baris tabel
-                $('#hasilTable tbody tr:last').data('id', response.id);
-            },
-            error: function() {
-                alert('Terjadi kesalahan, data tidak dapat disimpan.');
-            }
-        });
-    });
-
-    $(document).on('click', '.edit-button', function() {
-        const $row = $(this).closest('tr');
-        const id = $row.data('id');
-        const namaBangun = $row.children().eq(0).text();
-        const angka1 = $row.children().eq(1).text();
-        const angka2 = $row.children().eq(2).text();
-
-        $('#edit_id').val(id);
-        $('#edit_nama_bangun').val(namaBangun);
-        $('#edit_angka_1').val(angka1);
-        $('#edit_angka_2').val(angka2);
-
-        new bootstrap.Modal($('#editModal')).show();
-    });
-
-    $('#editForm').on('submit', function(e) {
-        e.preventDefault();
-
-        const id = $('#edit_id').val();
-        const namaBangun = $('#edit_nama_bangun').val();
-        const angka1 = parseFloat($('#edit_angka_1').val());
-        const angka2 = parseFloat($('#edit_angka_2').val());
-        let hasil;
-
-        switch (namaBangun) {
-            case 'Persegi':
-                hasil = angka1 * angka1;
-                break;
-            case 'Persegi Panjang':
-                hasil = angka1 * angka2;
-                break;
-            case 'Segitiga':
-                hasil = 0.5 * angka1 * angka2;
-                break;
-            case 'Jajar Genjang':
-                hasil = angka1 * angka2;
-                break;
-            case 'Belah Ketupat':
-                hasil = 0.5 * angka1 * angka2;
-                break;
+        if (currentMode === 'input') {
+            // Kirim data ke server dan tambahkan ke tabel
+            $.ajax({
+                url: '/simpan-bangun-datar',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    nama_bangun: namaBangun,
+                    angka_1: angka1,
+                    angka_2: angka2,
+                    hasil: hasil
+                }),
+                success: function(response) {
+                    alert('Data berhasil disimpan.');
+                    $('#hasilTable tbody').append(`
+                        <tr data-id="${response.id}">
+                            <td>${response.nama_bangun}</td>
+                            <td>${response.angka_1}</td>
+                            <td>${response.angka_2}</td>
+                            <td>${response.hasil}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm edit-button" data-id="${response.id}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-button" data-id="${response.id}">Hapus</button>
+                            </td>
+                        </tr>
+                    `);
+                    // Reset form setelah data disimpan
+                    $('#kalkulatorForm')[0].reset();
+                    $('#result').text('');
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Terjadi kesalahan, data tidak dapat disimpan.');
+                }
+            });
+        } else if (currentMode === 'edit') {
+            // Kirim data yang telah diedit ke server
+            $.ajax({
+                url: `/edit-bangun-datar/${currentId}`,
+                type: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    nama_bangun: namaBangun,
+                    angka_1: angka1,
+                    angka_2: angka2,
+                    hasil: hasil
+                }),
+                success: function(response) {
+                    alert('Data berhasil diperbarui.');
+                    let row = $(`#hasilTable tbody tr[data-id="${response.id}"]`);
+                    row.find('td').eq(0).text(response.nama_bangun);
+                    row.find('td').eq(1).text(response.angka_1);
+                    row.find('td').eq(2).text(response.angka_2);
+                    row.find('td').eq(3).text(response.hasil);
+                    // Kembali ke mode input setelah edit
+                    currentMode = 'input';
+                    $('#kalkulatorForm')[0].reset();
+                    $('#result').text('');
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Terjadi kesalahan, data tidak dapat diperbarui.');
+                }
+            });
         }
-
-        // Kirim data yang telah diubah ke server
-        $.ajax({
-            url: `/edit-bangun-datar/${id}`,
-            type: 'PUT',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
-            contentType: 'application/json',
-            data: JSON.stringify({
-                nama_bangun: namaBangun,
-                angka_1: angka1,
-                angka_2: angka2,
-                hasil: hasil
-            }),
-            success: function(response) {
-                alert('Data berhasil diperbarui.');
-                
-                // Update baris tabel dengan data yang diedit
-                $(`#hasilTable tbody tr[data-id="${id}"]`).html(`
-                    <td>${namaBangun}</td>
-                    <td>${angka1}</td>
-                    <td>${angka2}</td>
-                    <td>${hasil}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm edit-button" data-id="${id}">Edit</button>
-                        <button class="btn btn-danger btn-sm delete-button" data-id="${id}">Hapus</button>
-                    </td>
-                `);
-                
-                // Tutup modal setelah sukses
-                $('#editModal').modal('hide');
-            },
-            error: function() {
-                alert('Terjadi kesalahan, data tidak dapat diperbarui.');
-            }
-        });
     });
 
+    // Edit button click
+    $('#hasilTable').on('click', '.edit-button', function() {
+        const id = $(this).data('id');
+        const row = $(this).closest('tr');
+        const namaBangun = row.find('td').eq(0).text();
+        const angka1 = row.find('td').eq(1).text();
+        const angka2 = row.find('td').eq(2).text();
+
+        // Set data to form
+        $('#nama_bangun').val(namaBangun);
+        $('#angka_1').val(angka1);
+        $('#angka_2').val(angka2);
+
+        // Set mode ke edit
+        currentMode = 'edit';
+        currentId = id;
+        $('.card').addClass('edit-mode'); // Menandai bahwa sedang dalam mode edit
+    });
+
+    // Hapus button click
     $('#hasilTable').on('click', '.delete-button', function() {
-        var row = $(this).closest('tr');
-        var id = row.data('id');
+        const id = $(this).data('id');
+        const row = $(this).closest('tr');
 
-        $.ajax({
-            url: `/hapus-perhitungan/${id}`,
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            },
-            success: function(response) {
-                alert(response.message);
-                row.remove();
-            },
-            error: function() {
-                alert('Terjadi kesalahan, data tidak dapat dihapus.');
-            }
-        });
+        if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+            $.ajax({
+                url: `/hapus-bangun-datar/${id}`,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                success: function(response) {
+                    alert('Data berhasil dihapus.');
+                    row.remove();
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Terjadi kesalahan, data tidak dapat dihapus.');
+                }
+            });
+        }
     });
 
+    // Event listener untuk tombol clear
     $('#clearButton').on('click', function() {
         $('#kalkulatorForm')[0].reset();
         $('#result').text('');
-    });
-
-    $('#nama_bangun').on('change', function() {
-        const selectedValue = $(this).val();
-
-        $('#angka_1').val('');
-        $('#angka_2').val('');
-        $('#result').text('');
-
-        switch (selectedValue) {
-            case 'Persegi':
-                $('#angka_1').attr('placeholder', 'Sisi 1');
-                $('#angka_2').attr('placeholder', 'Sisi 2');
-                break;
-            case 'Segitiga':
-                $('#angka_1').attr('placeholder', 'Alas');
-                $('#angka_2').attr('placeholder', 'Tinggi');
-                break;
-            case 'Persegi Panjang':
-                $('#angka_1').attr('placeholder', 'Panjang');
-                $('#angka_2').attr('placeholder', 'Lebar');
-                break;
-            case 'Jajar Genjang':
-                $('#angka_1').attr('placeholder', 'Alas');
-                $('#angka_2').attr('placeholder', 'Tinggi');
-                break;
-            case 'Belah Ketupat':
-                $('#angka_1').attr('placeholder', 'Diagonal 1');
-                $('#angka_2').attr('placeholder', 'Diagonal 2');
-                break;
-            default:
-                $('#angka_1').attr('placeholder', 'Sisi 1');
-                $('#angka_2').attr('placeholder', 'Sisi 2');
-                break;
-        }
+        currentMode = 'input'; // Reset mode ke input
+        $('.card').removeClass('edit-mode'); // Hapus penandaan mode edit
     });
 });
-
-    </script>
+</script>
 </body>
 </html>

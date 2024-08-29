@@ -33,6 +33,11 @@
         input {
             margin: 5px;
         }
+
+        select {
+            margin: 5px;
+        }
+
         .btn-group button {
             margin: 5px;
         }
@@ -89,6 +94,60 @@
 
     <div class="mt-4">
         <h4>Data Hasil Perhitungan</h4>
+<!-- filter -->
+        <form action="/" method="get">
+            @csrf
+            <div class="row mb-3">
+                <div class="col-sm-2">
+                    <label for="" class="form-label">Tipe</label>
+                    <select name="tipe" class="form-select">
+                        <option value="">-</option>
+                        <option value="tambah">Tambah</option>
+                        <option value="kurang">Kurang</option>
+                        <option value="kali">Kali</option>
+                        <option value="bagi">Bagi</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <label for="" class="form-label">Angka 1</label>
+                    <div class="input-group">
+                        <select name="operator1" class="form-select">
+                            <option value="=">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value="!=">&ne;</option>
+                        </select>
+                        <input name="angka1" type="number" class="form-control" placeholder="Angka 1" value="{{ isset($_GET['angka1']) ? $_GET['angka1'] : '' }}">
+                    </div>
+                </div>
+                
+                <div class="col-sm-3">
+                    <label for="" class="form-label">Angka 2</label>
+                    <div class="input-group">
+                        <select name="operator2" class="form-select">
+                            <option value="=">=</option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                            <option value="!=">&ne;</option>
+                        </select>
+                        <input name="angka2" type="number" class="form-control" placeholder="Angka 2" value="{{ isset($_GET['angka2']) ? $_GET['angka2'] : '' }}">
+                    </div>
+                </div>
+                
+                <div class="col-sm-2">
+                    <label for="" class="form-label">Hasil</label>
+                    <select name="hasil" class="form-select">
+                        <option value="">-</option>
+                        <option value="terbesar">Terbesar</option>
+                        <option value="terkecil">Terkecil</option>
+                    </select>
+                </div>
+                <div class="col-sm-2" style="padding-top: 12px">
+                    <button type="submit" class="btn btn-primary mt-4">Search</button>
+                </div>
+            </div>
+        </form>
+<!--  -->
         <table class="table table-bordered" id="hasilTable">
             <thead>
                 <tr>

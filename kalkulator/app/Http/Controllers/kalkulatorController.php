@@ -7,12 +7,41 @@ use Illuminate\Support\Facades\DB;
 
 class kalkulatorController extends Controller
 {
-        public function index()
+        public function index(Request $request)
     {
-        $perhitungan = DB::table('kalkulator')->get();
+        $query = DB::table('kalkulator');
+
+        // Filter berdasarkan tipe operasi
+        if ($request->filled('tipe')) {
+            $query->where('tipe', $request->input('tipe'));
+        }
+
+        // Filter berdasarkan hasil terbesar/terkecil
+        if ($request->filled('hasil')) {
+            if ($request->input('hasil') == 'terbesar') {
+                $query->orderBy('hasil', 'desc');
+            } elseif ($request->input('hasil') == 'terkecil') {
+                $query->orderBy('hasil', 'asc');
+            }
+        }
+
+        // Filter berdasarkan angka_1
+        if ($request->filled('angka1')) {
+            $operator1 = $request->input('operator1', '=');
+            $query->where('angka_1', $operator1, $request->input('angka1'));
+        }
+
+        // Filter berdasarkan angka_2
+        if ($request->filled('angka2')) {
+            $operator2 = $request->input('operator2', '=');
+            $query->where('angka_2', $operator2, $request->input('angka2'));
+        }
+
+        $perhitungan = $query->get();
 
         return view('index', ['perhitungan' => $perhitungan]);
     }
+
 
     // Menyimpan hasil kalkulasi
         public function simpanPerhitungan(Request $request)
